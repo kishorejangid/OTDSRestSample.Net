@@ -15,17 +15,19 @@ namespace OTDSRestSample
         {
             //Since OTCS Rest API doesn't support token generation, get it from Content Server Rest API
             //If you need to handle authentication in OTDS, please use OAuth            
+            //Currently the token from this method is not working for OTDS
             String token = GetToken();
             Console.WriteLine(token);
 
             OTDSRestClient client = new OTDSRestClient(token);
-            //client.CreateUser();
-            //client.CreateGroup();
+            client.CreateUser();
+            client.CreateGroup();
             
             client.AddUserToGroups("kisho", new List<string> {
                 "cn=Business Administrators,ou=groups,ou=Root,ou=Content Server Members,ou=IdentityProviders,dc=identity,dc=opentext,dc=net",
                 "cn=Developers,ou=Root,ou=Content Server Members,ou=IdentityProviders,dc=identity,dc=opentext,dc=net"
             });
+
             Console.ReadLine();
         }
 
@@ -37,82 +39,6 @@ namespace OTDSRestSample
             request.AddParameter("password", "livelink");
             IRestResponse<OTDSTicket> response = client.Execute<OTDSTicket>(request);
             return response.Data.Ticket;
-        }
-    }
-
-    public class OTDSTicket
-    {
-        public string Ticket { get; set; }
-    }
-
-    public abstract class Config
-    {
-        public Config()
-        {
-            _protocol = Uri.UriSchemeHttp;
-            _host = "localhost";
-            _port = 80;
-        }
-
-        protected string _host;
-        public string Host
-        {
-            get
-            {
-                return _host;
-            }
-        }
-
-        protected string _protocol;
-        public string Protocol
-        {
-            get
-            {
-                return _protocol;
-            }
-        }
-
-        public string _path;
-        public string Path
-        {
-            get
-            {
-                return _path;
-            }
-        }
-
-        protected int _port;
-        public int Port { get { return _port; } }
-
-        public Uri GetUri()
-        {
-            var builder = new UriBuilder
-            {
-                Host = Host,
-                Port = Port,
-                Scheme = Protocol,
-                Path = Path
-            };
-            return builder.Uri;
-        }
-    }
-
-    public class OTCSConfig : Config
-    {
-        public OTCSConfig()
-        {
-            _host = "kksvr";
-            _path = "/otcs167/cs.exe";
-        }
-    }
-
-    public class OTDSConfig : Config
-    {
-        public OTDSConfig()
-        {
-            _host = "kksvr";
-            _port = 8080;
-            _path = "/otdsws/rest";
         }
     }
 
@@ -163,8 +89,7 @@ namespace OTDSRestSample
                     //Similarly add all other properties like Department
                 }
             };
-            request.AddJsonBody(createUserRequest);
-            Console.WriteLine("Request:");
+            request.AddJsonBody(createUserRequest);            
             IRestResponse response = _restClient.Execute(request);
             IDeserializer deserializer = new JsonDeserializer();
             if (response.IsSuccessful)
@@ -224,49 +149,7 @@ namespace OTDSRestSample
                 StringList = groups
             });
             IRestResponse response = _restClient.Execute(request);            
-            Console.WriteLine("Response:");
-            Console.WriteLine(response.Content);            
-        }
-    }
-
-    public class ErrorResponse
-    {
-        public int Status { get; set; }
-        public string Error { get; set; }
-        public string ErrorDetails { get; set; }
-    }
-
-    /// <summary>
-    /// Represent the User JSON returned from Rest API, need to implement all other properties     
-    /// </summary>
-    public class UserInfo
-    {
-        public string UserPartitionID { get; set; }
-        public string Name { get; set; }
-
-        public string Location { get; set; }
-
-        public List<Value> Values { get; set; }
-    }
-
-    public class Value
-    {
-        public string Name { get; set; }
-        public List<string> Values { get; set; }
-    }
-
-    public class CamelCaseJsonSerializerStrategy : PocoJsonSerializerStrategy
-    {
-        protected override string MapClrMemberNameToJsonFieldName(string clrPropertyName)
-        {            
-            if (clrPropertyName.Count() >= 2)
-            {
-                return char.ToLower(clrPropertyName[0]).ToString() + clrPropertyName.Substring(1);
-            }
-            else
-            {
-                return clrPropertyName.ToLower();
-            }
+            Console.WriteLine($"Response: \n{response.Content} - {response.StatusCode}");            
         }
     }
 }
