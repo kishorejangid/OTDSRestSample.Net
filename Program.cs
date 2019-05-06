@@ -31,6 +31,7 @@ namespace OTDSRestSample
             Console.ReadLine();
         }
 
+        //Obsolete
         public static string GetToken()
         {
             var client = new RestClient(new OTCSConfig().GetUri());
@@ -149,7 +150,8 @@ namespace OTDSRestSample
                 StringList = groups
             });
             IRestResponse response = _restClient.Execute(request);            
-            Console.WriteLine($"Response: \n{response.Content} - {response.StatusCode}");            
+            //If success, you will get a status code as 203, No content
+            Console.WriteLine($"Response: \n{response.Content} - {response.StatusCode}");      
         }
     }
 }

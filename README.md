@@ -1,9 +1,7 @@
-# OTDSRestSample.Net
-.Net Sample for OTDS Rest Client
+# OTDS Rest Sample.Net
+.Net Sample for OTDS Rest API
 
-Simple Sample Code for OTDS Rest API
-
-##***Current Implementations***
+***Current Implementations***
 1. Create User
 2. Create Group
 3. Add User to Groups
